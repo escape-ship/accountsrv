@@ -1,0 +1,35 @@
+syntax = "proto3";
+package go.escape.ship.proto.accountapi;
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+
+option go_package = "github.com/escape-ship/accountsrv/proto/gen";
+
+
+message KakaoLoginRequest {}
+message KakaoLoginResponse {
+    string loginURL = 1;
+}
+message KakaoCallBackRequest {
+    string code = 1;
+}
+
+message KakaoCallBackResponse {
+    string accessToken = 1;
+    string userInfoJson = 2;
+}
+service Account {
+    rpc GetKakaoLoginURL(KakaoLoginRequest) returns (KakaoLoginResponse) {
+        option (google.api.http) = {
+            get: "/oauth/kakao/login"
+        };
+    }
+    rpc GetKakaoCallBack(KakaoCallBackRequest) returns (KakaoCallBackResponse) {
+        option (google.api.http) = {
+            post: "/oauth/kakao/callback"
+            body: "*"
+        };
+    }
+    
+}
