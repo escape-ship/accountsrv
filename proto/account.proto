@@ -19,6 +19,27 @@ message KakaoCallBackResponse {
     string accessToken = 1;
     string userInfoJson = 2;
 }
+
+message LoginRequest{
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse{
+    string accessToken = 1;
+    string refreshToken = 2;
+}
+
+message RegisterRequest {
+    string email = 1;
+    string password = 2;
+    // 필요하면 추가 필드 (예: 이름, 전화번호 등)
+}
+
+message RegisterResponse {
+    string message = 1; // ex) "Registration successful" 
+    // 필요하면 user_id 같은 값 반환
+}
 service Account {
     rpc GetKakaoLoginURL(KakaoLoginRequest) returns (KakaoLoginResponse) {
         option (google.api.http) = {
@@ -31,5 +52,16 @@ service Account {
             body: "*"
         };
     }
-    
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post: "/oauth/login"
+            body: "*"
+        };
+    }
+    rpc Register(RegisterRequest) returns (RegisterResponse) {
+        option (google.api.http) = {
+            post: "/oauth/register"
+            body: "*"
+        };
+    }
 }

@@ -4,10 +4,13 @@ go 1.24.0
 
 require (
 	github.com/go-sql-driver/mysql v1.9.0
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/golang-migrate/migrate/v4 v4.18.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
 	github.com/joho/godotenv v1.5.1
+	github.com/redis/go-redis/v9 v9.7.1
 	github.com/sqlc-dev/sqlc v1.28.0
+	golang.org/x/crypto v0.32.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250224174004-546df14abb99
 	google.golang.org/grpc v1.70.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
@@ -18,8 +21,10 @@ require (
 	cel.dev/expr v0.19.1 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cubicdaiya/gonp v1.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/docker/docker v27.5.0+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
@@ -57,7 +62,6 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect

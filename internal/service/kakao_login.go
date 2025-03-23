@@ -1,4 +1,4 @@
-package domain
+package service
 
 import (
 	"context"
@@ -59,7 +59,9 @@ func GetKakaoToken(code string) (string, error) {
 		fmt.Printf("Kakao token response error: %v\n", err)
 		return "", err
 	}
-
+	for key, value := range result {
+		fmt.Printf("%s: %v\n", key, value)
+	}
 	accessToken, ok := result["access_token"].(string)
 	if !ok {
 		fmt.Println("no access_token found")

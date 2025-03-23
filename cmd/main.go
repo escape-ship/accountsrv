@@ -1,10 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net"
 
 	"github.com/escape-ship/accountsrv/internal/app"
+	"github.com/escape-ship/accountsrv/internal/infra/redis"
+	"github.com/escape-ship/accountsrv/internal/infra/sqlc/mysql"
+	"github.com/escape-ship/accountsrv/internal/service"
 	pb "github.com/escape-ship/accountsrv/proto/gen"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
@@ -21,17 +25,17 @@ func main() {
 	// // 환경변수 읽어오기
 	// app.LoadEnv()
 
-	// dsn := fmt.Sprintf("mysql://%s:%s@tcp(%s:%s)/%s?parseTime=true",
-	// 	"testuser", "testpassword", "0.0.0.0", "3306", "escape")
+	dsn := fmt.Sprintf("mysql://%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		"testuser", "testpassword", "0.0.0.0", "3306", "escape")
 
-	// fmt.Println("Connecting to DB:", dsn)
+	fmt.Println("Connecting to DB:", dsn)
 
-	// db, err := sql.Open("mysql", dsn)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// defer db.Close()
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer db.Close()
 
 	// m, err := migrate.New("file://db/migrations", dsn)
 	// if err != nil {
@@ -42,8 +46,12 @@ func main() {
 	// }
 	// fmt.Println("Database migrated successfully!")
 
-	newSrv := app.New()
-	// queries := mysql.New(db)
+	// account srv 초기화
+	queries := mysql.New(db)
+	redisClient := redis.NewClient()
+	accountGRPCServer := service.New(queries, redisClient)
+
+	newSrv := app.New(accountGRPCServer, queries, redisClient)
 	s := grpc.NewServer()
 
 	pb.RegisterAccountServer(s, newSrv.AccountGRPCServer)

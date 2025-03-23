@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Account_GetKakaoLoginURL_FullMethodName = "/go.escape.ship.proto.accountapi.Account/GetKakaoLoginURL"
 	Account_GetKakaoCallBack_FullMethodName = "/go.escape.ship.proto.accountapi.Account/GetKakaoCallBack"
+	Account_Login_FullMethodName            = "/go.escape.ship.proto.accountapi.Account/Login"
+	Account_Register_FullMethodName         = "/go.escape.ship.proto.accountapi.Account/Register"
 )
 
 // AccountClient is the client API for Account service.
@@ -29,6 +31,8 @@ const (
 type AccountClient interface {
 	GetKakaoLoginURL(ctx context.Context, in *KakaoLoginRequest, opts ...grpc.CallOption) (*KakaoLoginResponse, error)
 	GetKakaoCallBack(ctx context.Context, in *KakaoCallBackRequest, opts ...grpc.CallOption) (*KakaoCallBackResponse, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 }
 
 type accountClient struct {
@@ -59,12 +63,34 @@ func (c *accountClient) GetKakaoCallBack(ctx context.Context, in *KakaoCallBackR
 	return out, nil
 }
 
+func (c *accountClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LoginResponse)
+	err := c.cc.Invoke(ctx, Account_Login_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegisterResponse)
+	err := c.cc.Invoke(ctx, Account_Register_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccountServer is the server API for Account service.
 // All implementations must embed UnimplementedAccountServer
 // for forward compatibility.
 type AccountServer interface {
 	GetKakaoLoginURL(context.Context, *KakaoLoginRequest) (*KakaoLoginResponse, error)
 	GetKakaoCallBack(context.Context, *KakaoCallBackRequest) (*KakaoCallBackResponse, error)
+	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	mustEmbedUnimplementedAccountServer()
 }
 
@@ -80,6 +106,12 @@ func (UnimplementedAccountServer) GetKakaoLoginURL(context.Context, *KakaoLoginR
 }
 func (UnimplementedAccountServer) GetKakaoCallBack(context.Context, *KakaoCallBackRequest) (*KakaoCallBackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetKakaoCallBack not implemented")
+}
+func (UnimplementedAccountServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedAccountServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 func (UnimplementedAccountServer) mustEmbedUnimplementedAccountServer() {}
 func (UnimplementedAccountServer) testEmbeddedByValue()                 {}
@@ -138,6 +170,42 @@ func _Account_GetKakaoCallBack_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Account_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_Login_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).Login(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Account_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).Register(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_Register_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).Register(ctx, req.(*RegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Account_ServiceDesc is the grpc.ServiceDesc for Account service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +220,14 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetKakaoCallBack",
 			Handler:    _Account_GetKakaoCallBack_Handler,
+		},
+		{
+			MethodName: "Login",
+			Handler:    _Account_Login_Handler,
+		},
+		{
+			MethodName: "Register",
+			Handler:    _Account_Register_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
