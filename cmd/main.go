@@ -7,7 +7,7 @@ import (
 
 	"github.com/escape-ship/accountsrv/internal/app"
 	"github.com/escape-ship/accountsrv/internal/infra/redis"
-	"github.com/escape-ship/accountsrv/internal/infra/sqlc/mysql"
+	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
 	"github.com/escape-ship/accountsrv/internal/service"
 	pb "github.com/escape-ship/accountsrv/proto/gen"
 	_ "github.com/go-sql-driver/mysql"
@@ -15,6 +15,8 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	_ "github.com/jackc/pgx/v5/stdlib" // pgx 드라이버 등록
 )
 
 func main() {
@@ -25,12 +27,12 @@ func main() {
 	// // 환경변수 읽어오기
 	// app.LoadEnv()
 
-	dsn := fmt.Sprintf("mysql://%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		"testuser", "testpassword", "0.0.0.0", "3306", "escape")
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		"testuser", "testpasswd", "0.0.0.0", "5432", "escape")
 
 	fmt.Println("Connecting to DB:", dsn)
 
-	db, err := sql.Open("mysql", dsn)
+	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -47,7 +49,7 @@ func main() {
 	// fmt.Println("Database migrated successfully!")
 
 	// account srv 초기화
-	queries := mysql.New(db)
+	queries := postgresql.New(db)
 	redisClient := redis.NewClient()
 	accountGRPCServer := service.New(queries, redisClient)
 

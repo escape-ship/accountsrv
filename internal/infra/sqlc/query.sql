@@ -1,15 +1,13 @@
 -- name: GetUserByEmail :one
 SELECT id, email, password_hash
-FROM users
-WHERE email = ?;
+FROM account.users
+WHERE email = $1;
 
 -- name: InsertRefreshToken :exec
-INSERT INTO refresh_tokens (user_id, token, expires_at)
-VALUES (?, ?, ?);
+INSERT INTO account.refresh_tokens (user_id, token, expires_at)
+VALUES ($1, $2, $3);
 
--- name: InsertUser :exec
-INSERT INTO users (email, password_hash)
-VALUES (?, ?);
-
--- name: GetLastInsertID :one
-SELECT LAST_INSERT_ID();
+-- name: InsertUser :one
+INSERT INTO account.users (email, password_hash)
+VALUES ($1, $2)
+RETURNING id;

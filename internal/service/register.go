@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/escape-ship/accountsrv/internal/infra/sqlc/mysql"
+	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
 	pb "github.com/escape-ship/accountsrv/proto/gen"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
@@ -29,20 +29,15 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	}
 
 	// 사용자 삽입
-	if err := s.Queris.InsertUser(ctx, mysql.InsertUserParams{
+	userid, err := s.Queris.InsertUser(ctx, postgresql.InsertUserParams{
 		Email:        req.Email,
 		PasswordHash: string(passwordHash),
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to register user: %v", err)
 	}
 
-	// 삽입된 ID 가져오기
-	userID, err := s.Queris.GetLastInsertID(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to get user ID: %v", err)
-	}
-
 	return &pb.RegisterResponse{
-		Message: fmt.Sprintf("Registration successful, user ID: %d", userID),
+		Message: fmt.Sprintf("Registration successful, user ID: %d", userid),
 	}, nil
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/escape-ship/accountsrv/internal/infra/redis"
-	"github.com/escape-ship/accountsrv/internal/infra/sqlc/mysql"
+	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
 	"github.com/escape-ship/accountsrv/internal/service"
 )
 
@@ -20,11 +20,11 @@ func init() {
 
 type App struct {
 	AccountGRPCServer *service.Server
-	Queris            *mysql.Queries
+	Queris            *postgresql.Queries
 	Redis             *redis.RedisClient
 }
 
-func New(accountGrpc *service.Server, db *mysql.Queries, redis *redis.RedisClient) *App {
+func New(accountGrpc *service.Server, db *postgresql.Queries, redis *redis.RedisClient) *App {
 	return &App{
 		AccountGRPCServer: accountGrpc,
 		Queris:            db,

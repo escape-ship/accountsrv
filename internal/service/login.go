@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/escape-ship/accountsrv/internal/infra/sqlc/mysql"
+	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
 	pb "github.com/escape-ship/accountsrv/proto/gen"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -44,7 +44,7 @@ func (s *Server) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginRespo
 	}
 	// DB에 저장
 	expiresAt := time.Now().Add(14 * 24 * time.Hour)
-	if err := s.Queris.InsertRefreshToken(ctx, mysql.InsertRefreshTokenParams{
+	if err := s.Queris.InsertRefreshToken(ctx, postgresql.InsertRefreshTokenParams{
 		UserID:    user.ID,
 		Token:     refreshToken,
 		ExpiresAt: expiresAt,

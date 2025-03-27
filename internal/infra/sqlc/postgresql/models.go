@@ -2,14 +2,14 @@
 // versions:
 //   sqlc v1.28.0
 
-package mysql
+package postgresql
 
 import (
 	"database/sql"
 	"time"
 )
 
-type RefreshToken struct {
+type AccountRefreshToken struct {
 	ID        int64        `json:"id"`
 	UserID    int64        `json:"user_id"`
 	Token     string       `json:"token"`
@@ -17,7 +17,7 @@ type RefreshToken struct {
 	CreatedAt sql.NullTime `json:"created_at"`
 }
 
-type User struct {
+type AccountUser struct {
 	ID           int64        `json:"id"`
 	Email        string       `json:"email"`
 	PasswordHash string       `json:"password_hash"`

@@ -3,28 +3,17 @@
 //   sqlc v1.28.0
 // source: query.sql
 
-package mysql
+package postgresql
 
 import (
 	"context"
 	"time"
 )
 
-const getLastInsertID = `-- name: GetLastInsertID :one
-SELECT LAST_INSERT_ID()
-`
-
-func (q *Queries) GetLastInsertID(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getLastInsertID)
-	var last_insert_id int64
-	err := row.Scan(&last_insert_id)
-	return last_insert_id, err
-}
-
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, email, password_hash
-FROM users
-WHERE email = ?
+FROM account.users
+WHERE email = $1
 `
 
 type GetUserByEmailRow struct {
@@ -41,8 +30,8 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 }
 
 const insertRefreshToken = `-- name: InsertRefreshToken :exec
-INSERT INTO refresh_tokens (user_id, token, expires_at)
-VALUES (?, ?, ?)
+INSERT INTO account.refresh_tokens (user_id, token, expires_at)
+VALUES ($1, $2, $3)
 `
 
 type InsertRefreshTokenParams struct {
@@ -56,9 +45,10 @@ func (q *Queries) InsertRefreshToken(ctx context.Context, arg InsertRefreshToken
 	return err
 }
 
-const insertUser = `-- name: InsertUser :exec
-INSERT INTO users (email, password_hash)
-VALUES (?, ?)
+const insertUser = `-- name: InsertUser :one
+INSERT INTO account.users (email, password_hash)
+VALUES ($1, $2)
+RETURNING id
 `
 
 type InsertUserParams struct {
@@ -66,7 +56,9 @@ type InsertUserParams struct {
 	PasswordHash string `json:"password_hash"`
 }
 
-func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) error {
-	_, err := q.db.ExecContext(ctx, insertUser, arg.Email, arg.PasswordHash)
-	return err
+func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, insertUser, arg.Email, arg.PasswordHash)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }

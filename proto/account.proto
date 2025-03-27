@@ -17,7 +17,8 @@ message KakaoCallBackRequest {
 
 message KakaoCallBackResponse {
     string accessToken = 1;
-    string userInfoJson = 2;
+    string refreshToken = 2;
+    string userInfoJson = 3;
 }
 
 message LoginRequest{
