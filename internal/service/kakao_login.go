@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -76,7 +77,7 @@ func getKakaoToken(code string) (*response, error) {
 	defer resp.Body.Close()
 
 	// 응답 본문을 읽어오기
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %v", err)
 	}
@@ -96,10 +97,10 @@ func getKakaoToken(code string) (*response, error) {
 		fmt.Println("no access_token found")
 		return nil, fmt.Errorf("no access_token found")
 	}
-	refreshToken, ok := res["access_token"].(string)
+	refreshToken, ok := res["refresh_token"].(string)
 	if !ok {
-		fmt.Println("no access_token found")
-		return nil, fmt.Errorf("no access_token found")
+		fmt.Println("no refresh_token found")
+		return nil, fmt.Errorf("no refresh_token found")
 	}
 	result := &response{
 		AccessToken:  accessToken,
@@ -123,7 +124,7 @@ func getKakaoUserInfo(accessToken string) (*kakaoUserInfo, error) {
 	defer resp.Body.Close()
 
 	// 응답 상태 코드와 본문 출력
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	fmt.Printf("Kakao user info response body: %s\n", body)
 
 	var result kakaoUserInfo
@@ -137,7 +138,6 @@ func getKakaoUserInfo(accessToken string) (*kakaoUserInfo, error) {
 
 // 콜백 엔드포인트
 func (s *Server) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallBackRequest) (*pb.KakaoCallBackResponse, error) {
-	fmt.Println("Received code:", in.Code)
 	in.GetCode()
 	code := in.Code
 
@@ -155,19 +155,35 @@ func (s *Server) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallBackReque
 		return nil, err
 	}
 
-	// // 사용자 삽입
-	// userid, err := s.Queris.InsertUser(ctx, postgresql.InsertUserParams{
-	// 	Email:        req.Email,
-	// 	PasswordHash: string(passwordHash),
-	// })
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.Internal, "failed to register user: %v", err)
-	// }
+	existingUser, err := s.Queris.GetUserByEmail(ctx, userInfo.KakaoAccount.Email)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Errorf(codes.Internal, "failed to check if user exists: %v", err)
+	}
+	// 2. 사용자가 존재하지 않으면 새로 추가
+	var userid int64
+	if err == sql.ErrNoRows {
+		// 사용자 삽입
+		userid, err = s.Queris.InsertUser(ctx, postgresql.InsertUserParams{
+			Email:        userInfo.KakaoAccount.Email,
+			PasswordHash: "", // 카카오 로그인에서는 패스워드가 없으므로 빈 값으로 처리
+		})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to register user: %v", err)
+		}
+	} else {
+		// 사용자가 이미 존재하면 user_id를 가져옴
+		userid = existingUser.ID
+	}
 
+	// Redis에 저장
+	kakoRedisKey := fmt.Sprintf("kakao_access_token:%d", userid)
+	if err := s.RedisClient.RedisClient.Set(ctx, kakoRedisKey, token.AccessToken, 15*time.Minute).Err(); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to store access token: %v", err)
+	}
 	// DB에 저장
 	expiresAt := time.Now().Add(14 * 24 * time.Hour)
 	if err := s.Queris.InsertRefreshToken(ctx, postgresql.InsertRefreshTokenParams{
-		UserID:    int64(userInfo.ID),
+		UserID:    userid,
 		Token:     token.RefreshToken,
 		ExpiresAt: expiresAt,
 	}); err != nil {
