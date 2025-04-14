@@ -193,6 +193,6 @@ func (s *Server) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallBackReque
 	return &pb.KakaoCallBackResponse{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
-		UserInfoJson: string(userInfo.ID),
+		UserInfoJson: string(userInfo.KakaoAccount.Email),
 	}, nil
 }
