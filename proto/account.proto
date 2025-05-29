@@ -55,13 +55,13 @@ service Account {
     }
     rpc Login(LoginRequest) returns (LoginResponse) {
         option (google.api.http) = {
-            post: "/oauth/login"
+            post: "/login"
             body: "*"
         };
     }
     rpc Register(RegisterRequest) returns (RegisterResponse) {
         option (google.api.http) = {
-            post: "/oauth/register"
+            post: "/register"
             body: "*"
         };
     }

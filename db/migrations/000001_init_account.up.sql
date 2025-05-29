@@ -4,8 +4,8 @@ CREATE SCHEMA IF NOT EXISTS account;
 
 CREATE TABLE account.users (
     id BIGSERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL, -- bcrypt로 해시된 비밀번호
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL, -- bcrypt로 해시된 비밀번호
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
