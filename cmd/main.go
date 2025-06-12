@@ -28,7 +28,7 @@ func main() {
 	// app.LoadEnv()
 
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		"testuser", "testpasswd", "0.0.0.0", "5432", "escape")
+		"testuser", "testpassword", "0.0.0.0", "5432", "escape")
 
 	fmt.Println("Connecting to DB:", dsn)
 

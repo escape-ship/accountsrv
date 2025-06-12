@@ -431,12 +431,12 @@ const file_account_proto_rawDesc = "" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\",\n" +
 	"\x10RegisterResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\xd8\x04\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2\xcc\x04\n" +
 	"\aAccount\x12\x97\x01\n" +
 	"\x10GetKakaoLoginURL\x122.go.escape.ship.proto.accountapi.KakaoLoginRequest\x1a3.go.escape.ship.proto.accountapi.KakaoLoginResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/oauth/kakao/login\x12\xa3\x01\n" +
-	"\x10GetKakaoCallBack\x125.go.escape.ship.proto.accountapi.KakaoCallBackRequest\x1a6.go.escape.ship.proto.accountapi.KakaoCallBackResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/oauth/kakao/callback\x12\x7f\n" +
-	"\x05Login\x12-.go.escape.ship.proto.accountapi.LoginRequest\x1a..go.escape.ship.proto.accountapi.LoginResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/oauth/login\x12\x8b\x01\n" +
-	"\bRegister\x120.go.escape.ship.proto.accountapi.RegisterRequest\x1a1.go.escape.ship.proto.accountapi.RegisterResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/oauth/registerB-Z+github.com/escape-ship/accountsrv/proto/genb\x06proto3"
+	"\x10GetKakaoCallBack\x125.go.escape.ship.proto.accountapi.KakaoCallBackRequest\x1a6.go.escape.ship.proto.accountapi.KakaoCallBackResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/oauth/kakao/callback\x12y\n" +
+	"\x05Login\x12-.go.escape.ship.proto.accountapi.LoginRequest\x1a..go.escape.ship.proto.accountapi.LoginResponse\"\x11\x82\xd3\xe4\x93\x02\v:\x01*\"\x06/login\x12\x85\x01\n" +
+	"\bRegister\x120.go.escape.ship.proto.accountapi.RegisterRequest\x1a1.go.escape.ship.proto.accountapi.RegisterResponse\"\x14\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/registerB-Z+github.com/escape-ship/accountsrv/proto/genb\x06proto3"
 
 var (
 	file_account_proto_rawDescOnce sync.Once

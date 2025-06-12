@@ -178,7 +178,7 @@ func RegisterAccountHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/go.escape.ship.proto.accountapi.Account/Login", runtime.WithHTTPPathPattern("/oauth/login"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/go.escape.ship.proto.accountapi.Account/Login", runtime.WithHTTPPathPattern("/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -198,7 +198,7 @@ func RegisterAccountHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/go.escape.ship.proto.accountapi.Account/Register", runtime.WithHTTPPathPattern("/oauth/register"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/go.escape.ship.proto.accountapi.Account/Register", runtime.WithHTTPPathPattern("/register"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -290,7 +290,7 @@ func RegisterAccountHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/go.escape.ship.proto.accountapi.Account/Login", runtime.WithHTTPPathPattern("/oauth/login"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/go.escape.ship.proto.accountapi.Account/Login", runtime.WithHTTPPathPattern("/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -307,7 +307,7 @@ func RegisterAccountHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/go.escape.ship.proto.accountapi.Account/Register", runtime.WithHTTPPathPattern("/oauth/register"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/go.escape.ship.proto.accountapi.Account/Register", runtime.WithHTTPPathPattern("/register"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -326,8 +326,8 @@ func RegisterAccountHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 var (
 	pattern_Account_GetKakaoLoginURL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oauth", "kakao", "login"}, ""))
 	pattern_Account_GetKakaoCallBack_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oauth", "kakao", "callback"}, ""))
-	pattern_Account_Login_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oauth", "login"}, ""))
-	pattern_Account_Register_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oauth", "register"}, ""))
+	pattern_Account_Login_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"login"}, ""))
+	pattern_Account_Register_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"register"}, ""))
 )
 
 var (
