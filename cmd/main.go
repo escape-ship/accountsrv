@@ -20,7 +20,7 @@ import (
 )
 
 func main() {
-	lis, err := net.Listen("tcp", ":9090")
+	lis, err := net.Listen("tcp", ":8081")
 	if err != nil {
 		return
 	}
@@ -28,7 +28,7 @@ func main() {
 	// app.LoadEnv()
 
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		"testuser", "testpassword", "0.0.0.0", "5432", "escape")
+		"testuser", "testpassword", "postgres", "5432", "escape")
 
 	fmt.Println("Connecting to DB:", dsn)
 
@@ -60,7 +60,7 @@ func main() {
 
 	reflection.Register(s)
 
-	fmt.Println("Serving accountsrv on http://0.0.0.0:9090")
+	fmt.Println("Serving accountsrv on http://postgres:8081")
 
 	if err := s.Serve(lis); err != nil {
 		return
