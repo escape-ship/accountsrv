@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/escape-ship/accountsrv/internal/infra/redis"
 	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
-	pb "github.com/escape-ship/accountsrv/proto/gen"
+	pb "github.com/escape-ship/protos/gen"
 )
 
 type Server struct {

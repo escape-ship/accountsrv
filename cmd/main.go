@@ -9,7 +9,7 @@ import (
 	"github.com/escape-ship/accountsrv/internal/infra/redis"
 	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
 	"github.com/escape-ship/accountsrv/internal/service"
-	pb "github.com/escape-ship/accountsrv/proto/gen"
+	pb "github.com/escape-ship/protos/gen"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"

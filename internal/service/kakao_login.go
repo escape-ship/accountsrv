@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
-	pb "github.com/escape-ship/accountsrv/proto/gen"
+	pb "github.com/escape-ship/protos/gen"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

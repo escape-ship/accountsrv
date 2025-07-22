@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
-	pb "github.com/escape-ship/accountsrv/proto/gen"
+	pb "github.com/escape-ship/protos/gen"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"

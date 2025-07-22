@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
-	pb "github.com/escape-ship/accountsrv/proto/gen"
+	pb "github.com/escape-ship/protos/gen"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
