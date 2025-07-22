@@ -50,7 +50,7 @@ type KakaoAccount struct {
 }
 
 // 카카오 로그인 URL 반환
-func (*Server) GetKakaoLoginURL(ctx context.Context, in *pb.KakaoLoginRequest) (*pb.KakaoLoginResponse, error) {
+func (*AccountService) GetKakaoLoginURL(ctx context.Context, in *pb.KakaoLoginRequest) (*pb.KakaoLoginResponse, error) {
 	clientID := os.Getenv("KAKAO_CLIENT_ID")
 	redirectURI := os.Getenv("KAKAO_REDIRECT_URI")
 
@@ -137,7 +137,24 @@ func getKakaoUserInfo(accessToken string) (*kakaoUserInfo, error) {
 }
 
 // 콜백 엔드포인트
-func (s *Server) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallBackRequest) (*pb.KakaoCallBackResponse, error) {
+func (s *AccountService) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallBackRequest) (*pb.KakaoCallBackResponse, error) {
+
+	db := s.pg.GetDB()
+	querier := postgresql.New(db)
+
+	tx, err := db.Begin()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to begin transaction: %v", err)
+	}
+	qtx := querier.WithTx(tx)
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
 	in.GetCode()
 	code := in.Code
 
@@ -155,7 +172,7 @@ func (s *Server) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallBackReque
 		return nil, err
 	}
 
-	existingUser, err := s.Queris.GetUserByEmail(ctx, userInfo.KakaoAccount.Email)
+	existingUser, err := qtx.GetUserByEmail(ctx, userInfo.KakaoAccount.Email)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, status.Errorf(codes.Internal, "failed to check if user exists: %v", err)
 	}
@@ -163,7 +180,7 @@ func (s *Server) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallBackReque
 	var userid int64
 	if err == sql.ErrNoRows {
 		// 사용자 삽입
-		userid, err = s.Queris.InsertUser(ctx, postgresql.InsertUserParams{
+		userid, err = qtx.InsertUser(ctx, postgresql.InsertUserParams{
 			Email:        userInfo.KakaoAccount.Email,
 			PasswordHash: "", // 카카오 로그인에서는 패스워드가 없으므로 빈 값으로 처리
 		})
@@ -182,7 +199,7 @@ func (s *Server) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallBackReque
 	}
 	// DB에 저장
 	expiresAt := time.Now().Add(14 * 24 * time.Hour)
-	if err := s.Queris.InsertRefreshToken(ctx, postgresql.InsertRefreshTokenParams{
+	if err := qtx.InsertRefreshToken(ctx, postgresql.InsertRefreshTokenParams{
 		UserID:    userid,
 		Token:     token.RefreshToken,
 		ExpiresAt: expiresAt,

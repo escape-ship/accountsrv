@@ -12,9 +12,26 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+func (s *AccountService) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+
+	db := s.pg.GetDB()
+	querier := postgresql.New(db)
+
+	tx, err := db.Begin()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to begin transaction: %v", err)
+	}
+	qtx := querier.WithTx(tx)
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
 	// 이메일 중복 체크
-	_, err := s.Queris.GetUserByEmail(ctx, req.Email)
+	_, err = qtx.GetUserByEmail(ctx, req.Email)
 	if err == nil {
 		return nil, status.Errorf(codes.AlreadyExists, "email already registered")
 	}
@@ -29,7 +46,7 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	}
 
 	// 사용자 삽입
-	userid, err := s.Queris.InsertUser(ctx, postgresql.InsertUserParams{
+	userid, err := qtx.InsertUser(ctx, postgresql.InsertUserParams{
 		Email:        req.Email,
 		PasswordHash: string(passwordHash),
 	})

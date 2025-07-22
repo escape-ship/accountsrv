@@ -1,68 +1,56 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
+	"log/slog"
 	"net"
+	"os"
 
+	"github.com/escape-ship/accountsrv/config"
 	"github.com/escape-ship/accountsrv/internal/app"
 	"github.com/escape-ship/accountsrv/internal/infra/redis"
-	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
-	"github.com/escape-ship/accountsrv/internal/service"
-	pb "github.com/escape-ship/protos/gen"
+	"github.com/escape-ship/accountsrv/pkg/postgres"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 
 	_ "github.com/jackc/pgx/v5/stdlib" // pgx 드라이버 등록
 )
 
 func main() {
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	lis, err := net.Listen("tcp", ":8081")
 	if err != nil {
+		logger.Error(err.Error())
 		return
 	}
-	// // 환경변수 읽어오기
-	// app.LoadEnv()
-
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		"testuser", "testpassword", "postgres", "5432", "escape")
-
-	fmt.Println("Connecting to DB:", dsn)
-
-	db, err := sql.Open("pgx", dsn)
+	cfg, err := config.New("config.yaml")
 	if err != nil {
-		fmt.Println(err)
-		return
+		logger.Error("App: config load error", "error", err)
+		os.Exit(1)
 	}
-	defer db.Close()
-
-	// m, err := migrate.New("file://db/migrations", dsn)
-	// if err != nil {
-	// 	log.Fatal("Migration init failed:", err)
-	// }
-	// if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-	// 	log.Fatal("Migration failed:", err)
-	// }
-	// fmt.Println("Database migrated successfully!")
-
-	// account srv 초기화
-	queries := postgresql.New(db)
 	redisClient := redis.NewClient()
-	accountGRPCServer := service.New(queries, redisClient)
 
-	newSrv := app.New(accountGRPCServer, queries, redisClient)
-	s := grpc.NewServer()
-
-	pb.RegisterAccountServer(s, newSrv.AccountGRPCServer)
-
-	reflection.Register(s)
-
-	fmt.Println("Serving accountsrv on http://postgres:8081")
-
-	if err := s.Serve(lis); err != nil {
-		return
+	db, err := postgres.New(makeDSN(cfg.Database))
+	if err != nil {
+		logger.Error("App: database connection error", "error", err)
+		os.Exit(1)
 	}
+
+	application := app.New(db, lis, redisClient)
+	application.Run()
+}
+
+// config.Database 값 사용
+func makeDSN(db config.Database) postgres.DBConnString {
+	return postgres.DBConnString(
+		fmt.Sprintf(
+			"postgres://%s:%s@%s:%d/%s?sslmode=%s&search_path=%s",
+			db.User, db.Password,
+			db.Host, db.Port,
+			db.DataBaseName, db.SSLMode, db.SchemaName,
+		),
+	)
 }

@@ -16,8 +16,25 @@ import (
 
 var jwtSecret = []byte("jwt secret key")
 
-func (s *Server) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
-	user, err := s.Queris.GetUserByEmail(ctx, in.Email)
+func (s *AccountService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
+
+	db := s.pg.GetDB()
+	querier := postgresql.New(db)
+
+	tx, err := db.Begin()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to begin transaction: %v", err)
+	}
+	qtx := querier.WithTx(tx)
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	user, err := qtx.GetUserByEmail(ctx, in.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Errorf(codes.NotFound, "user not found")
@@ -44,7 +61,7 @@ func (s *Server) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginRespo
 	}
 	// DB에 저장
 	expiresAt := time.Now().Add(14 * 24 * time.Hour)
-	if err := s.Queris.InsertRefreshToken(ctx, postgresql.InsertRefreshTokenParams{
+	if err := qtx.InsertRefreshToken(ctx, postgresql.InsertRefreshTokenParams{
 		UserID:    user.ID,
 		Token:     refreshToken,
 		ExpiresAt: expiresAt,

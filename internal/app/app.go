@@ -2,32 +2,40 @@ package app
 
 import (
 	"log"
-
-	"github.com/joho/godotenv"
+	"net"
 
 	"github.com/escape-ship/accountsrv/internal/infra/redis"
-	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
 	"github.com/escape-ship/accountsrv/internal/service"
+	"github.com/escape-ship/accountsrv/pkg/postgres"
+	pb "github.com/escape-ship/protos/gen"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
-func init() {
-	// 환경 변수 로드
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Println("Warning: No .env file found")
+type App struct {
+	pg             postgres.DBEngine
+	AccountService *service.AccountService
+	Listener       net.Listener
+}
+
+func New(pg postgres.DBEngine, listener net.Listener, redisClient *redis.RedisClient) *App {
+	return &App{
+		pg:             pg,
+		Listener:       listener,
+		AccountService: service.NewAccountService(pg, redisClient),
 	}
 }
 
-type App struct {
-	AccountGRPCServer *service.Server
-	Queris            *postgresql.Queries
-	Redis             *redis.RedisClient
-}
+// App 실행: gRPC 서버와 Kafka consumer를 모두 실행
+func (a *App) Run() {
+	grpcServer := grpc.NewServer()
+	// gRPC 서비스 등록
+	pb.RegisterAccountServer(grpcServer, a.AccountService)
 
-func New(accountGrpc *service.Server, db *postgresql.Queries, redis *redis.RedisClient) *App {
-	return &App{
-		AccountGRPCServer: accountGrpc,
-		Queris:            db,
-		Redis:             redis,
+	reflection.Register(grpcServer)
+
+	log.Println("gRPC server listening on :8082")
+	if err := grpcServer.Serve(a.Listener); err != nil {
+		log.Fatalf("failed to serve: %v", err)
 	}
 }

@@ -2,19 +2,19 @@ package service
 
 import (
 	"github.com/escape-ship/accountsrv/internal/infra/redis"
-	"github.com/escape-ship/accountsrv/internal/infra/sqlc/postgresql"
+	"github.com/escape-ship/accountsrv/pkg/postgres"
 	pb "github.com/escape-ship/protos/gen"
 )
 
-type Server struct {
+type AccountService struct {
 	pb.AccountServer
-	Queris      *postgresql.Queries
+	pg          postgres.DBEngine
 	RedisClient *redis.RedisClient
 }
 
-func New(query *postgresql.Queries, redisClient *redis.RedisClient) *Server {
-	return &Server{
-		Queris:      query,
+func NewAccountService(pg postgres.DBEngine, redisClient *redis.RedisClient) *AccountService {
+	return &AccountService{
+		pg:          pg,
 		RedisClient: redisClient,
 	}
 }
