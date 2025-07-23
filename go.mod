@@ -3,7 +3,7 @@ module github.com/escape-ship/accountsrv
 go 1.24.5
 
 require (
-	github.com/escape-ship/protos v1.0.0
+	github.com/escape-ship/protos v1.0.5
 	github.com/go-sql-driver/mysql v1.9.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/golang-migrate/migrate/v4 v4.18.2

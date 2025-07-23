@@ -50,14 +50,14 @@ type KakaoAccount struct {
 }
 
 // 카카오 로그인 URL 반환
-func (*AccountService) GetKakaoLoginURL(ctx context.Context, in *pb.KakaoLoginRequest) (*pb.KakaoLoginResponse, error) {
+func (*AccountService) GetKakaoLoginURL(ctx context.Context, in *pb.GetKakaoLoginURLRequest) (*pb.GetKakaoLoginURLResponse, error) {
 	clientID := os.Getenv("KAKAO_CLIENT_ID")
 	redirectURI := os.Getenv("KAKAO_REDIRECT_URI")
 
 	url := fmt.Sprintf("%s?client_id=%s&redirect_uri=%s&response_type=code",
 		kakaoAuthURL, clientID, redirectURI)
 
-	return &pb.KakaoLoginResponse{LoginURL: url}, nil
+	return &pb.GetKakaoLoginURLResponse{LoginUrl: url}, nil
 }
 
 // 카카오 토큰 요청
@@ -137,7 +137,7 @@ func getKakaoUserInfo(accessToken string) (*kakaoUserInfo, error) {
 }
 
 // 콜백 엔드포인트
-func (s *AccountService) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallBackRequest) (*pb.KakaoCallBackResponse, error) {
+func (s *AccountService) GetKakaoCallBack(ctx context.Context, in *pb.GetKakaoCallBackRequest) (*pb.GetKakaoCallBackResponse, error) {
 
 	db := s.pg.GetDB()
 	querier := postgresql.New(db)
@@ -207,7 +207,7 @@ func (s *AccountService) GetKakaoCallBack(ctx context.Context, in *pb.KakaoCallB
 		return nil, status.Errorf(codes.Internal, "failed to store refresh token: %v", err)
 	}
 
-	return &pb.KakaoCallBackResponse{
+	return &pb.GetKakaoCallBackResponse{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 		UserInfoJson: string(userInfo.KakaoAccount.Email),

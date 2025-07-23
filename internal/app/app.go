@@ -30,7 +30,7 @@ func New(pg postgres.DBEngine, listener net.Listener, redisClient *redis.RedisCl
 func (a *App) Run() {
 	grpcServer := grpc.NewServer()
 	// gRPC 서비스 등록
-	pb.RegisterAccountServer(grpcServer, a.AccountService)
+	pb.RegisterAccountServiceServer(grpcServer, a.AccountService)
 
 	reflection.Register(grpcServer)
 

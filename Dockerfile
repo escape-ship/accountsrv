@@ -20,5 +20,6 @@ LABEL org.opencontainers.image.source="https://github.com/escape-ship/accountsrv
 
 # GOPATH for scratch images is /
 COPY --from=builder /app/config.yaml /
+COPY --from=builder /app/db/migrations /db/migrations
 COPY --from=builder /bin/app /app
 CMD ["/app"]

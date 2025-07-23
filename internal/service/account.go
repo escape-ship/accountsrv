@@ -7,7 +7,7 @@ import (
 )
 
 type AccountService struct {
-	pb.AccountServer
+	pb.AccountServiceServer
 	pg          postgres.DBEngine
 	RedisClient *redis.RedisClient
 }
