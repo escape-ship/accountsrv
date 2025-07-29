@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 
+	"github.com/escape-ship/accountsrv/config"
 	"github.com/escape-ship/accountsrv/internal/infra/redis"
 	"github.com/escape-ship/accountsrv/internal/service"
 	"github.com/escape-ship/accountsrv/pkg/postgres"
@@ -18,11 +19,11 @@ type App struct {
 	Listener       net.Listener
 }
 
-func New(pg postgres.DBEngine, listener net.Listener, redisClient *redis.RedisClient) *App {
+func New(pg postgres.DBEngine, listener net.Listener, redisClient *redis.RedisClient, cfg *config.Config) *App {
 	return &App{
 		pg:             pg,
 		Listener:       listener,
-		AccountService: service.NewAccountService(pg, redisClient),
+		AccountService: service.NewAccountService(pg, redisClient, cfg),
 	}
 }
 

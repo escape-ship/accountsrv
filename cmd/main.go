@@ -39,7 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	application := app.New(db, lis, redisClient)
+	application := app.New(db, lis, redisClient, cfg)
 	application.Run()
 }
 

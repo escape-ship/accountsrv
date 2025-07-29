@@ -10,6 +10,7 @@ import (
 type (
 	Config struct {
 		Database Database `mapstructure:"database"`
+		Auth     Auth     `mapstructure:"auth"` // 인증 관련 설정
 	}
 
 	Database struct {
@@ -20,6 +21,10 @@ type (
 		DataBaseName string `mapstructure:"database_name"` // DATABASE_DATABASE_NAME
 		SchemaName   string `mapstructure:"schema_name"`   // DATABASE_SCHEMA_NAME
 		SSLMode      string `mapstructure:"ssl_mode"`      // DATABASE_SSL_MODE
+	}
+
+	Auth struct {
+		JWTSecret string `mapstructure:"jwt_secret"`
 	}
 )
 

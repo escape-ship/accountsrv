@@ -14,8 +14,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var jwtSecret = []byte("jwt secret key")
-
 func (s *AccountService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
 
 	db := s.pg.GetDB()
@@ -46,7 +44,7 @@ func (s *AccountService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.Lo
 		return nil, status.Errorf(codes.Unauthenticated, "invalid password")
 	}
 	// 3. 액세스 토큰 생성
-	accessToken, err := generateAccessToken(user.ID)
+	accessToken, err := s.generateAccessToken(user.ID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to generate access token: %v", err)
 	}
@@ -55,7 +53,7 @@ func (s *AccountService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.Lo
 		return nil, status.Errorf(codes.Internal, "failed to store access token: %v", err)
 	}
 	// 4. 리프레시 토큰 생성
-	refreshToken, err := generateRefreshToken(user.ID)
+	refreshToken, err := s.generateRefreshToken(user.ID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to generate refresh token: %v", err)
 	}
@@ -75,22 +73,22 @@ func (s *AccountService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.Lo
 	}, nil
 }
 
-func generateAccessToken(userID int64) (string, error) {
+func (s *AccountService) generateAccessToken(userID int64) (string, error) {
 	claims := jwt.RegisteredClaims{
 		Subject:   fmt.Sprintf("%d", userID),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(s.config.Auth.JWTSecret)
 }
 
-func generateRefreshToken(userID int64) (string, error) {
+func (s *AccountService) generateRefreshToken(userID int64) (string, error) {
 	claims := jwt.RegisteredClaims{
 		Subject:   fmt.Sprintf("%d", userID),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(14 * 24 * time.Hour)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(s.config.Auth.JWTSecret)
 }
