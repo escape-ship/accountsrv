@@ -74,13 +74,14 @@ func (s *AccountService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.Lo
 }
 
 func (s *AccountService) generateAccessToken(userID int64) (string, error) {
+	fmt.Printf("AccountSrv - JWT Secret length: %d\n", len(s.config.Auth.JWTSecret))
 	claims := jwt.RegisteredClaims{
 		Subject:   fmt.Sprintf("%d", userID),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(s.config.Auth.JWTSecret)
+	return token.SignedString([]byte(s.config.Auth.JWTSecret))
 }
 
 func (s *AccountService) generateRefreshToken(userID int64) (string, error) {
@@ -90,5 +91,5 @@ func (s *AccountService) generateRefreshToken(userID int64) (string, error) {
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(s.config.Auth.JWTSecret)
+	return token.SignedString([]byte(s.config.Auth.JWTSecret))
 }

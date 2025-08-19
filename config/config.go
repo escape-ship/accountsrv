@@ -47,5 +47,11 @@ func New(path string) (*Config, error) {
 	if err := vp.Unmarshal(&cfg); err != nil {
 		return nil, err
 	}
+	
+	// JWT Secret 환경변수에서 직접 읽기
+	if jwtSecret := os.Getenv("JWT_SECRET"); jwtSecret != "" {
+		cfg.Auth.JWTSecret = jwtSecret
+	}
+	
 	return &cfg, nil
 }
