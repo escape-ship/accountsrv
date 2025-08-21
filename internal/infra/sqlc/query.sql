@@ -4,10 +4,10 @@ FROM account.users
 WHERE email = $1;
 
 -- name: InsertRefreshToken :exec
-INSERT INTO account.refresh_tokens (user_id, token, expires_at)
-VALUES ($1, $2, $3);
+INSERT INTO account.refresh_tokens (id, user_id, token, expires_at)
+VALUES ($1, $2, $3, $4);
 
 -- name: InsertUser :one
-INSERT INTO account.users (email, password_hash)
-VALUES ($1, $2)
+INSERT INTO account.users (id, email, password_hash)
+VALUES ($1, $2, $3)
 RETURNING id;
