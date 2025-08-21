@@ -18,28 +18,48 @@ import (
 )
 
 func main() {
+	// JSON 형태의 구조화된 로깅 설정 (Docker logs에서 잘 보임)
+	logLevel := slog.LevelInfo
+	if os.Getenv("LOG_LEVEL") == "debug" {
+		logLevel = slog.LevelDebug
+	}
 
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: logLevel,
+	}))
+	slog.SetDefault(logger)
+
+	logger.Info("Starting AccountService server", slog.String("port", "8081"))
 
 	lis, err := net.Listen("tcp", ":8081")
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error("Failed to start TCP listener", slog.String("error", err.Error()))
 		return
 	}
+
+	logger.Info("Loading configuration")
 	cfg, err := config.New("config.yaml")
 	if err != nil {
-		logger.Error("App: config load error", "error", err)
+		logger.Error("Failed to load configuration", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-	redisClient := redis.NewClient()
+	logger.Info("Configuration loaded successfully")
 
+	logger.Info("Connecting to Redis")
+	redisClient := redis.NewClient()
+	logger.Info("Redis connection established")
+
+	logger.Info("Connecting to database")
 	db, err := postgres.New(makeDSN(cfg.Database))
 	if err != nil {
-		logger.Error("App: database connection error", "error", err)
+		logger.Error("Failed to connect to database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
+	logger.Info("Database connection established")
 
+	logger.Info("Initializing application")
 	application := app.New(db, lis, redisClient, cfg)
+	logger.Info("Starting gRPC server")
 	application.Run()
 }
 

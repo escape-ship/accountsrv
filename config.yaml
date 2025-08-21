@@ -13,4 +13,4 @@ database:
   ssl_mode: "disable"
 
 auth:
-  jwt_secret: ""  # Set via GATEWAY_AUTH_JWT_SECRET environment variable
+  jwt_secret: ""  # Set via GATEWAY_AUTH_JWT_SECRET environment variable    
